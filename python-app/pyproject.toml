@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "python-app"
+version = "0.1.0"
+description = "python-app"
+authors = ["Miguel Muller <miguelsmuller@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "app"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = ">=0.115.11,<0.116.0"
+uvicorn = ">=0.34.0,<0.35.0"
+
+[tool.poetry.dev-dependencies]
+# [opcional] Dependências de desenvolvimento
+
+[build-system]
+requires = ["poetry>=1.1"]
+build-backend = "poetry.core.masonry.api"

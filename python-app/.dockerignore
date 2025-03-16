@@ -1,0 +1,42 @@
+# Ignore Python virtual environment directories
+venv/
+env/
+virtualenv/
+.env
+.env.ci
+
+# Ignore cache and temporary files
+.cache/
+.pytest_cache/
+__pycache__/
+.ruff_cache
+*.pyc
+*.pyo
+*.egg-info/
+*.log
+
+# Ignore development and debugging files
+.vscode/
+.idea/
+.git/
+
+# Ignore docs
+docs/
+.adr-dir
+
+# Ignore test files
+tests/
+
+# Ignore coverage files
+.coverage
+coverage.xml
+*report*/*
+
+# Ignore the Dockerignore file itself
+.dockerignore
+docker-compose.yaml
+Dockerfile
+
+# Ignore dev files
+.pre-commit-config.yaml
+.env.template

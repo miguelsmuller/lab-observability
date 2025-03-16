@@ -1,0 +1,51 @@
+# ----------------------------
+# Stage 1: Build
+# ----------------------------
+FROM python:3.12-slim AS builder
+
+ARG LOCAL_USER_ID=1000
+
+ENV POETRY_HOME="/opt/poetry" \
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VERSION=1.8.3
+
+ENV PATH="$POETRY_HOME/bin:$PATH"
+
+# Cria usuário
+RUN adduser --disabled-password --gecos '' --uid $LOCAL_USER_ID custom_user
+
+# Atualiza pip e instala Poetry
+RUN pip install --upgrade pip && \
+    pip install "poetry==$POETRY_VERSION"
+
+WORKDIR /home/app
+
+# Copia arquivos de dependências e do projeto
+COPY pyproject.toml poetry.lock ./
+COPY ./app ./app
+
+# Instala as dependências (isso gera .venv dentro de /home/app)
+RUN poetry install --no-root
+
+# ----------------------------
+# Stage 2: Runtime
+# ----------------------------
+FROM python:3.12-slim AS final
+
+ARG LOCAL_USER_ID=1000
+
+# Cria o mesmo usuário na imagem final
+RUN adduser --disabled-password --gecos '' --uid $LOCAL_USER_ID custom_user
+
+# Copia apenas o que é necessário da imagem builder
+WORKDIR /home/app
+COPY --chown=custom_user:custom_user --from=builder /home/app /home/app
+
+USER custom_user
+
+# Expondo a porta
+EXPOSE 8000
+
+# Comando de inicialização
+CMD ["./.venv/bin/uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

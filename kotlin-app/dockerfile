@@ -1,0 +1,32 @@
+# ----------------------------
+# Stage 1: Build
+# ----------------------------
+# Usamos a imagem oficial do Gradle com JDK17 no Alpine (mais leve)
+FROM gradle:8.13.0-jdk17-alpine AS builder
+
+# Copiamos todo o projeto (código-fonte e arquivos de configuração) para /app
+COPY . /app
+
+# Definimos /app como o diretório de trabalho
+WORKDIR /app
+
+# Executamos o build do projeto usando o Gradle, sem rodar como daemon
+RUN gradle build --no-daemon
+
+# ----------------------------
+# Stage 2: Runtime
+# ----------------------------
+# Para a imagem final, utilizamos o OpenJDK 17 
+FROM openjdk:17-jdk
+
+# Copiamos apenas o artefato .jar gerado no estágio de build
+COPY --from=builder /app/build/libs/*.jar /app/app.jar
+
+# Definimos /app como o diretório de trabalho na imagem final
+WORKDIR /app
+
+# Expondo a porta 8020 para documentar e facilitar o mapeamento
+EXPOSE 8020
+
+# Comando de inicialização padrão para executar a aplicação
+CMD ["java", "-jar", "app.jar"]
