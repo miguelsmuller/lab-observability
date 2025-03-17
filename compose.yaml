@@ -1,67 +1,37 @@
 version: '3.8'
 
 services:
-  
-  # ----------------------------
-  # Services for the application
-  # ----------------------------
 
   python-service:
     build: ./python-app
     container_name: python_service
     ports:
       - "8010:8000"
+    command: ./.venv/bin/uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./python-app/app:/home/app/app
+    networks:
+      - signoz-net
     environment:
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
-    depends_on:
-      - collector
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318/v1/traces
+      OTEL_EXPORTER_OTLP_INSECURE: true
+      OTEL_EXPORTER_CONSOLE: false
+      PYTHONUNBUFFERED: 1
+  
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q 0.0.0.0:8123/ping || exit 1"]
 
   kotlin-service:
     build: ./kotlin-app
     container_name: kotlin_service
     ports:
       - "8020:8080"
+    networks:
+      - signoz-net
     environment:
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
-    depends_on:
-      - collector
-
-  # ----------------------------------
-  # OpenTelemetry Collector and SigNoz
-  # ----------------------------------
-
-  collector:
-    # image: otel/opentelemetry-collector-contrib:latest
-    image: signoz/signoz-otel-collector:latest
-    container_name: collector
-    command: ["--config=/etc/otel-collector-config.yaml"]
-    volumes:
-      - ./infra/otel-collector-config.yaml:/etc/otel-collector-config.yaml
-    ports:
-      - "4317:4317"  # OTLP gRPC
-      - "4318:4318"  # OTLP HTTP
-    depends_on:
-      - signoz
-
-  signoz:
-    image: signoz/signoz:latest
-    container_name: signoz
-    ports:
-      - "8000:8080"
-    depends_on:
-      - signoz-db
-    environment:
-      - SIGNOZ_TELEMETRYSTORE_PROVIDER=clickhouse
-      - CLICKHOUSE_DB_HOSTNAME=clickhouse
-      - TELEMETRY_ENABLED=true
-      - DEPLOYMENT_TYPE=docker-standalone-amd
-    volumes:
-      - signoz-data:/var/lib/signoz
-
-
-  # ----------------------------
-  # Extra services for the stack
-  # ----------------------------
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318/v1/traces
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q 0.0.0.0:8123/ping || exit 1"]
 
   mongo:
     image: mongo:latest
@@ -71,16 +41,9 @@ services:
     volumes:
       - mongo-data:/data/db
 
-  signoz-db:
-    image: clickhouse/clickhouse-server:latest
-    container_name: clickhouse
-    ports:
-      - "8123:8123"
-      - "9000:9000"
-    volumes:
-      - clickhouse-data:/var/lib/clickhouse
-
 volumes:
   mongo-data:
-  clickhouse-data:
-  signoz-data:
+
+networks:
+  signoz-net:
+    external: true

@@ -35,6 +35,8 @@ FROM python:3.12-slim AS final
 
 ARG LOCAL_USER_ID=1000
 
+RUN apt-get update && apt-get install -y curl dnsutils
+
 # Cria o mesmo usuário na imagem final
 RUN adduser --disabled-password --gecos '' --uid $LOCAL_USER_ID custom_user
 
