@@ -28,3 +28,7 @@ Após inicializar o ambiente, você pode acessar a interface do SigNoz no navega
 
 - [Documentação do SigNoz](https://signoz.io/docs/)
 - [Documentação do OTel](https://opentelemetry.io/docs/)
+
+## Screenshot
+
+![Signoz Screenshot](docs/signoz-screenshot.png)
