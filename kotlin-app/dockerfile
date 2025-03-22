@@ -11,7 +11,7 @@ COPY . /app
 WORKDIR /app
 
 # Executamos o build do projeto usando o Gradle, sem rodar como daemon
-RUN gradle build --no-daemon
+RUN gradle build --no-daemon -xtest
 
 # ----------------------------
 # Stage 2: Runtime

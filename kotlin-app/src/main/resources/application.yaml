@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: kotlin-app
+  profiles:
+   active: ${ENV:prod}
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+server:
+  port: ${APP_INTERNAL_PORT:8999}

@@ -1,0 +1,3 @@
+services:
+  python:
+    url: http://localhost:8010/  # docker external
