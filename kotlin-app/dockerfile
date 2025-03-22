@@ -19,6 +19,9 @@ RUN gradle build --no-daemon
 # Para a imagem final, utilizamos o OpenJDK 17 
 FROM openjdk:17-jdk
 
+# Copia o agente do OpenTelemetry
+COPY ./open-telemetry/opentelemetry-javaagent.jar /otel/opentelemetry-javaagent.jar
+
 # Copiamos apenas o artefato .jar gerado no estágio de build
 COPY --from=builder /app/build/libs/*.jar /app/app.jar
 
@@ -29,4 +32,4 @@ WORKDIR /app
 EXPOSE 8020
 
 # Comando de inicialização padrão para executar a aplicação
-CMD ["java", "-jar", "app.jar"]
+CMD ["java", "-javaagent:/otel/opentelemetry-javaagent.jar", "-jar", "app.jar"]
